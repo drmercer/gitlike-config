@@ -1,0 +1,21 @@
+{
+  "name": "gitlike-config",
+  "version": "0.0.1",
+  "description": "Git-like local/global configuration file management in CLI programs",
+  "main": "index.js",
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drmercer/gitlike-config.git"
+  },
+  "keywords": [
+    "config"
+  ],
+  "author": "Dan Mercer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/drmercer/gitlike-config/issues"
+  },
+  "homepage": "https://github.com/drmercer/gitlike-config#readme"
+}
