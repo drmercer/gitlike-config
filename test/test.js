@@ -1,7 +1,8 @@
 var Config = require('../src/index.js');
 
 var conf = new Config({
-	name: 'git-config-test'
+	name: 'gitlike-config-test'
 })
 
-console.log(conf);
+console.log(conf.getGlobalConfigPath());
+console.log(conf.getConfig());

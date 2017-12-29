@@ -18,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/drmercer/gitlike-config/issues"
   },
-  "homepage": "https://github.com/drmercer/gitlike-config#readme"
+  "homepage": "https://github.com/drmercer/gitlike-config#readme",
+  "dependencies": {
+    "application-config-path": "^0.1.0",
+    "deep-extend": "^0.5.0"
+  }
 }
