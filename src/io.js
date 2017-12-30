@@ -13,6 +13,14 @@ function readJsonFile(filePath) {
 	return JSON.parse(contents);
 }
 
+function writeJsonFile(path, data) {
+	const json = JSON.stringify(data, null, '\t');
+	fs.writeFileSync(path, json + "\n", {
+		encoding: 'utf8'
+	});
+}
+
 module.exports = {
 	readJsonFile,
+	writeJsonFile,
 }

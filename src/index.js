@@ -7,7 +7,7 @@ const io = require('./io');
 class Config {
 	constructor(opts) {
 		if (!opts || typeof opts.name !== 'string') {
-			throw new Exception("A name must be given to gitlike-config constructor");
+			throw new Error("A name must be given to gitlike-config constructor");
 		}
 		this.appName = opts.name;
 	}
@@ -22,6 +22,13 @@ class Config {
 
 	readGlobalConfig() {
 		return io.readJsonFile(this.getGlobalConfigPath()) || {};
+	}
+
+	writeLocalConfig(data) {
+		if (!data || typeof data !== 'object') {
+			throw new Error("writeLocalConfig() must be given an object");
+		}
+		io.writeJsonFile(this.getLocalConfigPath(), data);
 	}
 
 	getGlobalConfigPath() {
