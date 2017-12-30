@@ -1,6 +1,7 @@
 const applicationConfigPath = require('application-config-path');
 const path = require('path');
 const deepExtend = require('deep-extend');
+const _ = require('private-parts').createKey();
 
 const io = require('./io');
 
@@ -9,7 +10,7 @@ class Config {
 		if (!opts || typeof opts.name !== 'string') {
 			throw new Error("A name must be given to gitlike-config constructor");
 		}
-		this.appName = opts.name;
+		_(this).appName = opts.name;
 
 		// opts.autoLoad = false will prevent automatic call to load()
 		if (opts.autoLoad !== false) {
@@ -24,17 +25,19 @@ class Config {
 	}
 
 	getConfig() {
-		return this.config;
+		return _(this).config;
 	}
 
 	readLocalConfig() {
-		this.localConf = io.readJsonFile(this.getLocalConfigPath()) || {};
-		return this.localConf;
+		var conf = io.readJsonFile(this.getLocalConfigPath()) || {};
+		_(this).localConf = conf;
+		return conf;
 	}
 
 	readGlobalConfig() {
-		this.globalConf = io.readJsonFile(this.getGlobalConfigPath()) || {};
-		return this.globalConf;
+		var conf = io.readJsonFile(this.getGlobalConfigPath()) || {};
+		_(this).globalConf = conf;
+		return conf;
 	}
 
 	writeLocalConfig(data) {
@@ -43,7 +46,7 @@ class Config {
 		}
 		// We don't ensureParentDirExists because it's the current working dir
 		io.writeJsonFile(this.getLocalConfigPath(), data);
-		this.localConf = data;
+		_(this).localConf = data;
 		this._recomputeConfig();
 	}
 
@@ -54,20 +57,20 @@ class Config {
 		const filePath = this.getGlobalConfigPath();
 		io.ensureParentDirExists(filePath);
 		io.writeJsonFile(filePath, data);
-		this.globalConf = data;
+		_(this).globalConf = data;
 		this._recomputeConfig();
 	}
 
 	getGlobalConfigPath() {
-		return path.join(applicationConfigPath(this.appName), "config.json");
+		return path.join(applicationConfigPath(_(this).appName), "config.json");
 	}
 
 	getLocalConfigPath() {
-		return path.join('.', `.${this.appName}.config.json`);
+		return path.join('.', `.${_(this).appName}.config.json`);
 	}
 
 	_recomputeConfig() {
-		this.config = deepExtend({}, this.globalConf, this.localConf);
+		_(this).config = deepExtend({}, _(this).globalConf, _(this).localConf);
 	}
 }
 
