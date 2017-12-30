@@ -10,18 +10,31 @@ class Config {
 			throw new Error("A name must be given to gitlike-config constructor");
 		}
 		this.appName = opts.name;
+
+		// opts.autoLoad = false will prevent automatic call to load()
+		if (opts.autoLoad !== false) {
+			this.load();
+		}
+	}
+
+	load() {
+		this.readLocalConfig();
+		this.readGlobalConfig();
+		this._recomputeConfig();
 	}
 
 	getConfig() {
-		return deepExtend(this.readGlobalConfig(), this.readLocalConfig());
+		return this.config;
 	}
 
 	readLocalConfig() {
-		return io.readJsonFile(this.getLocalConfigPath()) || {};
+		this.localConf = io.readJsonFile(this.getLocalConfigPath()) || {};
+		return this.localConf;
 	}
 
 	readGlobalConfig() {
-		return io.readJsonFile(this.getGlobalConfigPath()) || {};
+		this.globalConf = io.readJsonFile(this.getGlobalConfigPath()) || {};
+		return this.globalConf;
 	}
 
 	writeLocalConfig(data) {
@@ -30,6 +43,8 @@ class Config {
 		}
 		// We don't ensureParentDirExists because it's the current working dir
 		io.writeJsonFile(this.getLocalConfigPath(), data);
+		this.localConf = data;
+		this._recomputeConfig();
 	}
 
 	writeGlobalConfig(data) {
@@ -39,6 +54,8 @@ class Config {
 		const filePath = this.getGlobalConfigPath();
 		io.ensureParentDirExists(filePath);
 		io.writeJsonFile(filePath, data);
+		this.globalConf = data;
+		this._recomputeConfig();
 	}
 
 	getGlobalConfigPath() {
@@ -47,6 +64,10 @@ class Config {
 
 	getLocalConfigPath() {
 		return path.join('.', `.${this.appName}.config.json`);
+	}
+
+	_recomputeConfig() {
+		this.config = deepExtend({}, this.globalConf, this.localConf);
 	}
 }
 
