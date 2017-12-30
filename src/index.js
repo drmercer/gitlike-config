@@ -1,9 +1,15 @@
 const applicationConfigPath = require('application-config-path');
 const path = require('path');
 const deepExtend = require('deep-extend');
-const _ = require('private-parts').createKey();
 
 const io = require('./io');
+
+// Use private-parts to create private members. Private functions are defined here:
+const _ = require('private-parts').createKey({
+	recomputeConfig() {
+		this.config = deepExtend({}, this.globalConf, this.localConf);
+	}
+});
 
 class Config {
 	constructor(opts) {
@@ -21,7 +27,7 @@ class Config {
 	load() {
 		this.readLocalConfig();
 		this.readGlobalConfig();
-		this._recomputeConfig();
+		_(this).recomputeConfig();
 	}
 
 	getConfig() {
@@ -47,7 +53,7 @@ class Config {
 		// We don't ensureParentDirExists because it's the current working dir
 		io.writeJsonFile(this.getLocalConfigPath(), data);
 		_(this).localConf = data;
-		this._recomputeConfig();
+		_(this).recomputeConfig();
 	}
 
 	writeGlobalConfig(data) {
@@ -58,7 +64,7 @@ class Config {
 		io.ensureParentDirExists(filePath);
 		io.writeJsonFile(filePath, data);
 		_(this).globalConf = data;
-		this._recomputeConfig();
+		_(this).recomputeConfig();
 	}
 
 	getGlobalConfigPath() {
@@ -67,10 +73,6 @@ class Config {
 
 	getLocalConfigPath() {
 		return path.join('.', `.${_(this).appName}.config.json`);
-	}
-
-	_recomputeConfig() {
-		_(this).config = deepExtend({}, _(this).globalConf, _(this).localConf);
 	}
 }
 
