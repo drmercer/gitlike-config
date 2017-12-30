@@ -1,6 +1,8 @@
 const applicationConfigPath = require('application-config-path');
 const path = require('path');
 const deepExtend = require('deep-extend');
+const _get = require('lodash/get');
+const _set = require('lodash/set');
 
 const io = require('./io');
 
@@ -18,7 +20,6 @@ class Config {
 		}
 		_(this).appName = opts.name;
 
-		// opts.autoLoad = false will prevent automatic call to load()
 		if (opts.autoLoad !== false) {
 			this.load();
 		}
@@ -32,6 +33,37 @@ class Config {
 
 	getConfig() {
 		return _(this).config;
+	}
+
+	get(propertyPath, defaultVal) {
+		if (typeof propertyPath !== 'string' &&
+				!(propertyPath instanceof Array)) {
+			throw new Error("propertyPath must be a string or an array");
+		}
+
+		return _get(_(this).config, propertyPath, defaultVal);
+	}
+
+	set(propertyPath, value) {
+		if (typeof propertyPath !== 'string' &&
+				!(propertyPath instanceof Array)) {
+			throw new Error("propertyPath must be a string or an array");
+		}
+
+		const _config = _(this).localConf;
+		_set(_config, propertyPath, value);
+		this.writeLocalConfig(_config);
+	}
+
+	setGlobal(propertyPath, value) {
+		if (typeof propertyPath !== 'string' &&
+				!(propertyPath instanceof Array)) {
+			throw new Error("propertyPath must be a string or an array");
+		}
+
+		const _config = _(this).globalConf;
+		_set(_config, propertyPath, value);
+		this.writeGlobalConfig(_config);
 	}
 
 	readLocalConfig() {

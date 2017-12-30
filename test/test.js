@@ -6,28 +6,53 @@ var conf = new Config({
 	name: 'gitlike-config-test'
 })
 
-var origConf = conf.getConfig();
-
-assert.equal(origConf.potato, 1337);
-
-conf.writeLocalConfig({
-	potato: 1338,
-	carrot: 4321,
-})
-
-assert.equal(conf.getConfig().potato, 1338);
-assert.equal(conf.getConfig().carrot, 4321);
-
-conf.writeLocalConfig(origConf)
-
-conf.writeGlobalConfig({potato: 1000, bagel: true});
-assert.equal(conf.readGlobalConfig().potato, 1000);
-assert.equal(conf.getConfig().potato, origConf.potato);
-assert.equal(conf.getConfig().bagel, true);
-
 try {
 	conf.writeLocalConfig(null);
 	assert.fail("writeLocalConfig(null) should throw");
 } catch (e) {
-	console.log("Correctly threw:", e.toString());
+	// Correct
 }
+
+try {
+	conf.writeGlobalConfig(null);
+	assert.fail("writeGlobalConfig(null) should throw");
+} catch (e) {
+	// Correct
+}
+
+conf.writeLocalConfig({
+	potato: 1337,
+	a: {
+		nested: {
+			object: 'is fun',
+		},
+	},
+})
+conf.writeGlobalConfig({
+	potato: 1000,
+	a: {
+		nested: {
+			path: 'to nowhere',
+			object: 'should be overridden recursively',
+		},
+	},
+	bagel: true,
+})
+
+const origConf = conf.getConfig();
+
+assert.equal(origConf.potato, 1337);
+assert.equal(conf.get('potato'), 1337);
+assert.equal(origConf.bagel, true);
+assert.equal(conf.get('bagel'), true);
+assert.equal(conf.get('a.nested.path'), 'to nowhere');
+assert.equal(conf.get('a.nested.object'), 'is fun');
+
+conf.setGlobal('a.nested.object', 'is changed globally');
+assert.equal(conf.get('a.nested.object'), 'is fun');
+
+conf.set('a.nested.object', 'is changed locally');
+assert.equal(conf.get('a.nested.object'), 'is changed locally');
+
+conf.writeLocalConfig({});
+conf.writeGlobalConfig({});
