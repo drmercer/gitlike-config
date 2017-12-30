@@ -19,6 +19,7 @@ class Config {
 			throw new Error("A name must be given to gitlike-config constructor");
 		}
 		_(this).appName = opts.name;
+		_(this).lookInParentDirs = opts.lookInParentDirs !== false;
 
 		if (opts.autoLoad !== false) {
 			this.load();
@@ -82,7 +83,8 @@ class Config {
 		if (!data || typeof data !== 'object') {
 			throw new Error("writeLocalConfig() must be given an object");
 		}
-		// We don't ensureParentDirExists because it's the current working dir
+		// We don't ensureParentDirExists because the parent is the current working
+		// dir or some parent of it
 		io.writeJsonFile(this.getLocalConfigPath(), data);
 		_(this).localConf = data;
 		_(this).recomputeConfig();
@@ -104,7 +106,12 @@ class Config {
 	}
 
 	getLocalConfigPath() {
-		return path.join('.', `.${_(this).appName}.config.json`);
+		var name = `.${_(this).appName}.config.json`;
+		var found = null;
+		if (_(this).lookInParentDirs) {
+			found = io.findClosestParentDirWith(name);
+		}
+		return found || path.join(".", name);
 	}
 }
 

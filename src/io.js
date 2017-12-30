@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const findUp = require('find-up');
 
 function readJsonFile(filePath) {
 	// Return null for nonexistent file
@@ -30,8 +31,13 @@ function ensureParentDirExists(filePath) {
 	}
 }
 
+function findClosestParentDirWith(name) {
+	return findUp.sync(name);
+}
+
 module.exports = {
 	readJsonFile,
 	writeJsonFile,
 	ensureParentDirExists,
+	findClosestParentDirWith,
 }

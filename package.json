@@ -21,6 +21,7 @@
   "homepage": "https://github.com/drmercer/gitlike-config#readme",
   "dependencies": {
     "application-config-path": "^0.1.0",
+    "find-up": "^2.1.0",
     "lodash": "^4.17.4",
     "private-parts": "^0.4.1"
   }
