@@ -1,6 +1,6 @@
 const applicationConfigPath = require('application-config-path');
 const path = require('path');
-const deepExtend = require('deep-extend');
+const _merge = require('lodash/merge');
 const _get = require('lodash/get');
 const _set = require('lodash/set');
 
@@ -9,7 +9,7 @@ const io = require('./io');
 // Use private-parts to create private members. Private functions are defined here:
 const _ = require('private-parts').createKey({
 	recomputeConfig() {
-		this.config = deepExtend({}, this.globalConf, this.localConf);
+		this.config = _merge({}, this.globalConf, this.localConf);
 	}
 });
 
