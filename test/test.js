@@ -20,6 +20,11 @@ assert.equal(conf.getConfig().carrot, 4321);
 
 conf.writeLocalConfig(origConf)
 
+conf.writeGlobalConfig({potato: 1000, bagel: true});
+assert.equal(conf.readGlobalConfig().potato, 1000);
+assert.equal(conf.getConfig().potato, origConf.potato);
+assert.equal(conf.getConfig().bagel, true);
+
 try {
 	conf.writeLocalConfig(null);
 	assert.fail("writeLocalConfig(null) should throw");

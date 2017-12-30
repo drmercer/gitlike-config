@@ -28,7 +28,17 @@ class Config {
 		if (!data || typeof data !== 'object') {
 			throw new Error("writeLocalConfig() must be given an object");
 		}
+		// We don't ensureParentDirExists because it's the current working dir
 		io.writeJsonFile(this.getLocalConfigPath(), data);
+	}
+
+	writeGlobalConfig(data) {
+		if (!data || typeof data !== 'object') {
+			throw new Error("writeGlobalConfig() must be given an object");
+		}
+		const filePath = this.getGlobalConfigPath();
+		io.ensureParentDirExists(filePath);
+		io.writeJsonFile(filePath, data);
 	}
 
 	getGlobalConfigPath() {

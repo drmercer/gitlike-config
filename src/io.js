@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 function readJsonFile(filePath) {
 	// Return null for nonexistent file
@@ -20,7 +21,17 @@ function writeJsonFile(path, data) {
 	});
 }
 
+function ensureParentDirExists(filePath) {
+	const dirPath = path.dirname(filePath);
+	if (!fs.existsSync(dirPath)) {
+		fs.mkdirSync(dirPath);
+	} else if (!fs.statSync(dirPath).isDirectory()) {
+		throw new Exception(dirPath + " exists but is not a directory!");
+	}
+}
+
 module.exports = {
 	readJsonFile,
 	writeJsonFile,
+	ensureParentDirExists,
 }
