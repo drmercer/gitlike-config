@@ -1,9 +1,9 @@
 const fs = require('fs');
 
 function readJsonFile(filePath) {
-	// Empty JSON for nonexistent file
+	// Return null for nonexistent file
 	if (!fs.existsSync(filePath)) {
-		return {};
+		return null;
 	}
 
 	const contents = fs.readFileSync(filePath, {

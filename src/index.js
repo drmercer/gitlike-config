@@ -16,11 +16,11 @@ class Config {
 	}
 
 	readLocalConfig() {
-		return io.readJsonFile(this.getLocalConfigPath());
+		return io.readJsonFile(this.getLocalConfigPath()) || {};
 	}
 
 	readGlobalConfig() {
-		return io.readJsonFile(this.getGlobalConfigPath());
+		return io.readJsonFile(this.getGlobalConfigPath()) || {};
 	}
 
 	getGlobalConfigPath() {
