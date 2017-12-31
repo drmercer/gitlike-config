@@ -1,23 +1,30 @@
+// Some really simple tests. Maybe I'll upgrade this to use Mocha or something someday
+
 var assert = require('assert');
+var path = require('path');
+var fs = require('fs');
+var applicationConfigPath = require('application-config-path');
 
 var Config = require('../src/index.js');
 
+const APP_NAME = 'gitlike-config-test';
+
 var conf = new Config({
-	name: 'gitlike-config-test'
+	name: APP_NAME,
 })
 
 try {
 	conf.writeLocalConfig(null);
 	assert.fail("writeLocalConfig(null) should throw");
 } catch (e) {
-	// Correct
+	// Should throw
 }
 
 try {
 	conf.writeGlobalConfig(null);
 	assert.fail("writeGlobalConfig(null) should throw");
 } catch (e) {
-	// Correct
+	// Should throw
 }
 
 conf.writeLocalConfig({
@@ -54,5 +61,25 @@ assert.equal(conf.get('a.nested.object'), 'is fun');
 conf.set('a.nested.object', 'is changed locally');
 assert.equal(conf.get('a.nested.object'), 'is changed locally');
 
-conf.writeLocalConfig({});
-conf.writeGlobalConfig({});
+conf.deleteLocalConfig((configPath, doDelete) => {
+	const fileName = `.${APP_NAME}.config.json`;
+	const dir = '.';
+	assert.equal(path.resolve(configPath), path.resolve(dir, fileName));
+	setTimeout(() => {
+		doDelete();
+		assert(!fs.existsSync(configPath));
+		// Directory should not be deleted
+		assert(fs.existsSync(path.dirname(configPath)));
+	}, 0);
+});
+conf.deleteGlobalConfig((configPath, doDelete) => {
+	const fileName = 'config.json';
+	const dir = applicationConfigPath(APP_NAME);
+	assert.equal(path.resolve(configPath), path.resolve(dir, fileName));
+	setTimeout(() => {
+		doDelete();
+		assert(!fs.existsSync(configPath));
+		// Directory should be deleted
+		assert(!fs.existsSync(path.dirname(configPath)));
+	}, 0);
+});

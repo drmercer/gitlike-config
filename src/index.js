@@ -10,7 +10,19 @@ const io = require('./io');
 const _ = require('private-parts').createKey({
 	recomputeConfig() {
 		this.config = _merge({}, this.globalConf, this.localConf);
-	}
+	},
+
+	confirmAndDelete(confirm, path, removeEmptyParent, postDelete) {
+		var doDelete = () => {
+			io.removeFile(path, removeEmptyParent);
+			postDelete();
+		};
+		if (confirm) {
+			confirm(path, doDelete);
+		} else {
+			doDelete();
+		}
+	},
 });
 
 class Config {
@@ -65,6 +77,34 @@ class Config {
 		const _config = _(this).globalConf;
 		_set(_config, propertyPath, value);
 		this.writeGlobalConfig(_config);
+	}
+
+	/**
+	 * Deletes the local configuration file.
+	 * @param  {Function} confirm (optional) If given, called with the path of the
+	 * local config file and a function to call if that file should really be deleted.
+	 */
+	deleteLocalConfig(confirm) {
+		const path = this.getLocalConfigPath();
+		// Delete file with optional confirmation
+		_(this).confirmAndDelete(confirm, path, false, () => {
+			_(this).localConf = {};
+			_(this).recomputeConfig();
+		});
+	}
+
+	/**
+	 * Deletes the global configuration file.
+	 * @param  {Function} confirm (optional) If given, called with the path of the
+	 * global config file and a function to call if that file should really be deleted.
+	 */
+	deleteGlobalConfig(confirm) {
+		const path = this.getGlobalConfigPath();
+		// Delete file with optional confirmation, deleting parent directory too (if it's empty)
+		_(this).confirmAndDelete(confirm, path, true, () => {
+			_(this).globalConf = {};
+			_(this).recomputeConfig();
+		});
 	}
 
 	readLocalConfig() {

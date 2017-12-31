@@ -1,3 +1,7 @@
+/*
+ * A module with synchronous file I/O operations
+ */
+
 const fs = require('fs');
 const path = require('path');
 const findUp = require('find-up');
@@ -35,9 +39,30 @@ function findClosestParentDirWith(name) {
 	return findUp.sync(name);
 }
 
+/**
+ * Removes the given file, and optionally the parent directory iff it is
+ * empty.
+ * @param  {String}  filePath
+ *            The path to the file to remove.
+ * @param  {Boolean} removeEmptyParent
+ *            `true` if the parent directory should also be removed if empty.
+ */
+function removeFile(filePath, removeEmptyParent) {
+	if (fs.existsSync(filePath)) {
+		fs.unlinkSync(filePath);
+	}
+	if (removeEmptyParent) {
+		var dir = path.dirname(filePath);
+		if (fs.readdirSync(dir).length === 0) {
+			fs.rmdirSync(dir);
+		}
+	}
+}
+
 module.exports = {
 	readJsonFile,
 	writeJsonFile,
 	ensureParentDirExists,
 	findClosestParentDirWith,
+	removeFile,
 }
