@@ -1,6 +1,6 @@
 {
   "name": "gitlike-config",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Git-like local/global configuration file management in CLI programs",
   "main": "src/index.js",
   "scripts": {
