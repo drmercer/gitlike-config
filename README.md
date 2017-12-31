@@ -1,5 +1,5 @@
 # gitlike-config
-A Node module for git-like local/global configuration file management in CLI programs. Uses JSON files to store configuration data in a local directory (the current working directory or a parent of it) and in a global directory (e.g. a folder in `AppData` in Windows or `~/.config` in Linux). These JSON files can be rich objects with nested  properties; the objects are merged deeply with local values overriding the global ones, and both global and local overriding the default ones specified programmatically.
+A Node module for git-like local/global configuration file management in CLI programs. Uses JSON files to store configuration data in a local directory (the current working directory or a parent of it) and in a global directory (e.g. a folder in `AppData` in Windows or `~/.config` in Linux). The objects in these JSON files can have nested  properties; the objects are merged deeply. Local values override global ones, and both global and local values override the default ones specified programmatically.
 
 ## Installation
 ```sh
