@@ -11,6 +11,11 @@ const APP_NAME = 'gitlike-config-test';
 
 var conf = new Config({
 	name: APP_NAME,
+	defaults: {
+		potato: 'carrot',
+		celery: 'healthy',
+	},
+	autoLoad: false,
 })
 
 try {
@@ -49,6 +54,7 @@ conf.writeGlobalConfig({
 const origConf = conf.getConfig();
 
 assert.equal(origConf.potato, 1337);
+assert.equal(origConf.celery, 'healthy');
 assert.equal(conf.get('potato'), 1337);
 assert.equal(origConf.bagel, true);
 assert.equal(conf.get('bagel'), true);

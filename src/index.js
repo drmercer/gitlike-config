@@ -9,7 +9,7 @@ const io = require('./io');
 // Use private-parts to create private members. Private functions are defined here:
 const _ = require('private-parts').createKey({
 	recomputeConfig() {
-		this.config = _merge({}, this.globalConf, this.localConf);
+		this.config = _merge({}, this.defaults, this.globalConf, this.localConf);
 	},
 
 	confirmAndDelete(confirm, path, removeEmptyParent, postDelete) {
@@ -32,6 +32,7 @@ class Config {
 		}
 		_(this).appName = opts.name;
 		_(this).lookInParentDirs = opts.lookInParentDirs !== false;
+		_(this).defaults = opts.defaults || {};
 
 		if (opts.autoLoad !== false) {
 			this.load();
