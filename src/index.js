@@ -173,6 +173,11 @@ class Config {
 	 * @return {Boolean} `true` if a file was created, `false` if not.
 	 */
 	initLocalConfig() {
+		if (!_(this).lookInParentDirs) {
+			throw new Error("lookInParentDirs option is set to false, so "+
+				"initLocalConfig() is not necessary (local configuration data is "+
+				"always saved to the CWD)");
+		}
 		const existingPath = this.getExistingLocalConfigPath();
 		const defaultPath = this.getDefaultLocalConfigPath();
 		if (!existingPath || path.resolve(existingPath) !== path.resolve(defaultPath)) {
