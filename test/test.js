@@ -1,7 +1,5 @@
-// Some really simple tests. Maybe I'll upgrade this to use Mocha or something someday
 
 var assert = require('assert');
-var chalk = require('chalk');
 var path = require('path');
 var fs = require('fs');
 var applicationConfigPath = require('application-config-path');
@@ -9,6 +7,10 @@ var applicationConfigPath = require('application-config-path');
 var Config = require('../src/index.js');
 
 const APP_NAME = 'gitlike-config-test';
+
+it("should work good :P", function() {
+	// TODO: indent properly (leaving for now to reduce git diff footprint)
+
 
 var conf = new Config({
 	name: APP_NAME,
@@ -101,4 +103,5 @@ conf.deleteGlobalConfig((configPath, doDelete) => {
 	}, 0);
 });
 
-console.log(chalk.green("Success!"));
+// End of it("should work good") function
+});
