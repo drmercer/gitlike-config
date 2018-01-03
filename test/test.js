@@ -250,6 +250,45 @@ describe("direct write", () => {
 	});
 });
 
+describe("delete", () => {
+	beforeEach(() => {
+		mock({
+			// Dummy config files
+			[localConfigName]: JSON.stringify(dummyLocalConfig),
+			[globalConfigPath]: JSON.stringify(dummyGlobalConfig)
+		});
+		conf.load();
+	});
+	afterEach(() => {
+		mock.restore();
+	});
+
+	it("should delete local config file with confirmation", done => {
+		conf.deleteLocalConfig((configPath, doDelete) => {
+			assert.equal(path.resolve(configPath), path.resolve(localConfigPath));
+			setTimeout(() => {
+				doDelete();
+				assert(!fs.existsSync(configPath));
+				// Directory should not be deleted
+				assert(fs.existsSync(path.dirname(configPath)));
+				done();
+			}, 0);
+		});
+	});
+	it("should delete global config file with confirmation", done => {
+		conf.deleteGlobalConfig((configPath, doDelete) => {
+			assert.equal(path.resolve(configPath), path.resolve(globalConfigPath));
+			setTimeout(() => {
+				doDelete();
+				assert(!fs.existsSync(configPath));
+				// Directory should be deleted
+				assert(!fs.existsSync(path.dirname(configPath)));
+				done();
+			}, 0);
+		});
+	});
+});
+
 
 (function oldTest() {
 	// TODO: indent properly (leaving for now to reduce git diff footprint)
@@ -273,35 +312,12 @@ assert.equal(conf.get('a.nested.object'), 'is changed locally');
 // Should return false, since a local config already exists.
 assert(!conf.initLocalConfig());
 
-conf.deleteLocalConfig((configPath, doDelete) => {
-	const fileName = `.${APP_NAME}.config.json`;
-	const dir = '.';
-	assert.equal(path.resolve(configPath), path.resolve(dir, fileName));
-	setTimeout(() => {
-		doDelete();
-		assert(!fs.existsSync(configPath));
-		// Directory should not be deleted
-		assert(fs.existsSync(path.dirname(configPath)));
+// Should return true now, since no local config already exists:
+assert(conf.initLocalConfig());
+assert(fs.existsSync(configPath));
 
-		// Should return true now, since no local config already exists:
-		assert(conf.initLocalConfig());
-		assert(fs.existsSync(configPath));
-
-		conf.deleteLocalConfig();
-		assert(!fs.existsSync(configPath));
-	}, 0);
-});
-conf.deleteGlobalConfig((configPath, doDelete) => {
-	const fileName = 'config.json';
-	const dir = applicationConfigPath(APP_NAME);
-	assert.equal(path.resolve(configPath), path.resolve(dir, fileName));
-	setTimeout(() => {
-		doDelete();
-		assert(!fs.existsSync(configPath));
-		// Directory should be deleted
-		assert(!fs.existsSync(path.dirname(configPath)));
-	}, 0);
-});
+conf.deleteLocalConfig();
+assert(!fs.existsSync(configPath));
 
 // End of it("should work good") function
 });
