@@ -1,6 +1,7 @@
 // Some really simple tests. Maybe I'll upgrade this to use Mocha or something someday
 
 var assert = require('assert');
+var chalk = require('chalk');
 var path = require('path');
 var fs = require('fs');
 var applicationConfigPath = require('application-config-path');
@@ -89,3 +90,5 @@ conf.deleteGlobalConfig((configPath, doDelete) => {
 		assert(!fs.existsSync(path.dirname(configPath)));
 	}, 0);
 });
+
+console.log(chalk.green("Success!"));
