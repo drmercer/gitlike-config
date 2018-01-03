@@ -26,6 +26,7 @@
     "private-parts": "^0.4.1"
   },
   "devDependencies": {
-    "mocha": "^4.1.0"
+    "mocha": "^4.1.0",
+    "mock-fs": "^4.4.2"
   }
 }
