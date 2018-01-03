@@ -4,6 +4,7 @@ var path = require('path');
 var fs = require('fs');
 var mock = require('mock-fs');
 var applicationConfigPath = require('application-config-path');
+var _merge = require('lodash/merge');
 
 var Config = require('../src/index.js');
 
@@ -57,6 +58,7 @@ describe("set (local)", () => {
 
 	it("should set a basic property", () => {
 		conf.set("test", 1);
+		assert.equal(1, conf.get("test"));
 		assertFileContains(localConfigPath, {
 			test: 1
 		})
@@ -64,6 +66,7 @@ describe("set (local)", () => {
 
 	it("should work with nested paths", () => {
 		conf.set("test.some.path", 1);
+		assert.equal(1, conf.get("test.some.path"));
 		assertFileContains(localConfigPath, {
 			test: { some: { path: 1 } }
 		})
@@ -71,6 +74,7 @@ describe("set (local)", () => {
 
 	it("should work with arrays", () => {
 		conf.set(["test","some","other","path"], 1);
+		assert.equal(1, conf.get("test.some.other.path"));
 		assertFileContains(localConfigPath, {
 			test: { some: { other: { path: 1 } } }
 		})
@@ -92,6 +96,7 @@ describe("setGlobal", () => {
 
 	it("should set a basic property", () => {
 		conf.setGlobal("test", 1);
+		assert.equal(1, conf.get("test"));
 		assertFileContains(globalConfigPath, {
 			test: 1
 		})
@@ -99,6 +104,7 @@ describe("setGlobal", () => {
 
 	it("should work with nested paths", () => {
 		conf.setGlobal("test.some.path", 1);
+		assert.equal(1, conf.get("test.some.path"));
 		assertFileContains(globalConfigPath, {
 			test: { some: { path: 1 } }
 		})
@@ -106,6 +112,7 @@ describe("setGlobal", () => {
 
 	it("should work with arrays", () => {
 		conf.setGlobal(["test","some","other","path"], 1);
+		assert.equal(1, conf.get("test.some.other.path"));
 		assertFileContains(globalConfigPath, {
 			test: { some: { other: { path: 1 } } }
 		})
@@ -151,52 +158,101 @@ describe("get", () => {
 
 })
 
+describe("getConfig", () => {
+	beforeEach(() => {
+		mock({
+			// Dummy config files
+			[localConfigName]: JSON.stringify(dummyLocalConfig),
+			[globalConfigPath]: JSON.stringify(dummyGlobalConfig)
+		});
+		conf.load();
+	});
+	afterEach(() => {
+		mock.restore();
+	});
 
-it("should work good :P", function() {
+	it("should retrieve merged data", () => {
+		const merged = _merge({}, dummyDefaultConfig, dummyGlobalConfig, dummyLocalConfig);
+		assert.deepEqual(merged, conf.getConfig());
+	})
+
+})
+
+describe("direct write", () => {
+	beforeEach(() => {
+		mock({
+			// Dummy config files
+			[localConfigName]: JSON.stringify(dummyLocalConfig),
+			[globalConfigPath]: JSON.stringify(dummyGlobalConfig)
+		});
+		conf.load();
+	});
+	afterEach(() => {
+		mock.restore();
+	});
+
+	describe("writeLocalConfig", () => {
+		it("should throw when given a non-object", () => {
+			try {
+				conf.writeLocalConfig(null);
+				assert.fail("null should throw");
+			} catch (e) {}
+			try {
+				conf.writeLocalConfig(1337);
+				assert.fail("number should throw");
+			} catch (e) {}
+			try {
+				conf.writeLocalConfig(function(){});
+				assert.fail("function should throw");
+			} catch (e) {}
+		})
+		it("should write to file when given a nice object", () => {
+			const dummyNewData = {
+				potato: 1337,
+				a: {
+					nested: {
+						object: 'is fun',
+					},
+				},
+			};
+			conf.writeLocalConfig(dummyNewData);
+			assertFileContains(localConfigPath, dummyNewData);
+		})
+	});
+
+	describe("writeGlobalConfig", () => {
+		it("should throw when given a non-object", () => {
+			try {
+				conf.writeGlobalConfig(null);
+				assert.fail("null should throw");
+			} catch (e) {}
+			try {
+				conf.writeGlobalConfig(1337);
+				assert.fail("number should throw");
+			} catch (e) {}
+			try {
+				conf.writeGlobalConfig(function(){});
+				assert.fail("function should throw");
+			} catch (e) {}
+		})
+		it("should write to file when given a nice object", () => {
+			const dummyNewData = {
+				potato: 1337,
+				a: {
+					nested: {
+						object: 'is fun',
+					},
+				},
+			};
+			conf.writeGlobalConfig(dummyNewData);
+			assertFileContains(globalConfigPath, dummyNewData);
+		})
+	});
+});
+
+
+(function oldTest() {
 	// TODO: indent properly (leaving for now to reduce git diff footprint)
-
-
-var conf = new Config({
-	name: APP_NAME,
-	defaults: {
-		potato: 'carrot',
-		celery: 'healthy',
-	},
-	autoLoad: false,
-})
-
-try {
-	conf.writeLocalConfig(null);
-	assert.fail("writeLocalConfig(null) should throw");
-} catch (e) {
-	// Should throw
-}
-
-try {
-	conf.writeGlobalConfig(null);
-	assert.fail("writeGlobalConfig(null) should throw");
-} catch (e) {
-	// Should throw
-}
-
-conf.writeLocalConfig({
-	potato: 1337,
-	a: {
-		nested: {
-			object: 'is fun',
-		},
-	},
-})
-conf.writeGlobalConfig({
-	potato: 1000,
-	a: {
-		nested: {
-			path: 'to nowhere',
-			object: 'should be overridden recursively',
-		},
-	},
-	bagel: true,
-})
 
 const origConf = conf.getConfig();
 
