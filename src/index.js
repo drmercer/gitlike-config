@@ -31,6 +31,7 @@ class Config {
 			throw new Error("A name must be given to gitlike-config constructor");
 		}
 		_(this).appName = opts.name;
+		_(this).localConfigName = `.${opts.name}.config.json`
 		_(this).lookInParentDirs = opts.lookInParentDirs !== false;
 		_(this).defaults = opts.defaults || {};
 
@@ -147,12 +148,39 @@ class Config {
 	}
 
 	getLocalConfigPath() {
-		var name = `.${_(this).appName}.config.json`;
 		var found = null;
 		if (_(this).lookInParentDirs) {
-			found = io.findClosestParentDirWith(name);
+			found = this.getExistingLocalConfigPath();
 		}
-		return found || path.join(".", name);
+		return found || this.getDefaultLocalConfigPath();
+	}
+
+	getExistingLocalConfigPath() {
+		if (!_(this).lookInParentDirs) {
+			throw new Error("getExistingLocalConfigPath should not be used with lookInParentDirs:false option.");
+		}
+		const name = _(this).localConfigName;
+		return io.findClosestParentDirWith(name);
+	}
+
+	getDefaultLocalConfigPath() {
+		return path.join(".", _(this).localConfigName);
+	}
+
+	/**
+	 * Initializes an empty local config file in the current working directory,
+	 * but only if no such file already exists in that directory (`process.cwd()`).
+	 * @return {Boolean} `true` if a file was created, `false` if not.
+	 */
+	initLocalConfig() {
+		const existingPath = this.getExistingLocalConfigPath();
+		const defaultPath = this.getDefaultLocalConfigPath();
+		if (!existingPath || path.resolve(existingPath) !== path.resolve(defaultPath)) {
+			io.writeJsonFile(defaultPath, {});
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 

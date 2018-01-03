@@ -68,6 +68,9 @@ assert.equal(conf.get('a.nested.object'), 'is fun');
 conf.set('a.nested.object', 'is changed locally');
 assert.equal(conf.get('a.nested.object'), 'is changed locally');
 
+// Should return false, since a local config already exists.
+assert(!conf.initLocalConfig());
+
 conf.deleteLocalConfig((configPath, doDelete) => {
 	const fileName = `.${APP_NAME}.config.json`;
 	const dir = '.';
@@ -77,6 +80,13 @@ conf.deleteLocalConfig((configPath, doDelete) => {
 		assert(!fs.existsSync(configPath));
 		// Directory should not be deleted
 		assert(fs.existsSync(path.dirname(configPath)));
+
+		// Should return true now, since no local config already exists:
+		assert(conf.initLocalConfig());
+		assert(fs.existsSync(configPath));
+
+		conf.deleteLocalConfig();
+		assert(!fs.existsSync(configPath));
 	}, 0);
 });
 conf.deleteGlobalConfig((configPath, doDelete) => {
