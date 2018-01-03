@@ -181,9 +181,13 @@ class Config {
 		const existingPath = this.getExistingLocalConfigPath();
 		const defaultPath = this.getDefaultLocalConfigPath();
 		if (!existingPath || path.resolve(existingPath) !== path.resolve(defaultPath)) {
+			// Write an empty config file in the CWD
 			io.writeJsonFile(defaultPath, {});
+			_(this).localConf = {};
+			_(this).recomputeConfig();
 			return true;
 		} else {
+			// A local config file already exists in the CWD
 			return false;
 		}
 	}
