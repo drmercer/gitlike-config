@@ -289,35 +289,40 @@ describe("delete", () => {
 	});
 });
 
+describe("initLocalConfig", () => {
+	it("should return false when a local config exists in CWD", () => {
+		mock({
+			[localConfigName]: JSON.stringify(dummyLocalConfig),
+		});
+		conf.load();
+		assert(!conf.initLocalConfig());
+	})
+	it("should return true and reset data when a local config exists in a parent dir", () => {
+		mock({
+			// Have to put file in parent dir manually
+		});
+		const parentDirConfig = path.join("..", localConfigName);
+		fs.writeFileSync(parentDirConfig, JSON.stringify(dummyLocalConfig));
 
-(function oldTest() {
-	// TODO: indent properly (leaving for now to reduce git diff footprint)
+		conf.load();
+		assert.equal("simple", conf.get("test"));
+		assert(!fs.existsSync(localConfigPath));
 
-const origConf = conf.getConfig();
+		assert(conf.initLocalConfig());
+		assert.equal(undefined, conf.get("test"));
 
-assert.equal(origConf.potato, 1337);
-assert.equal(origConf.celery, 'healthy');
-assert.equal(conf.get('potato'), 1337);
-assert.equal(origConf.bagel, true);
-assert.equal(conf.get('bagel'), true);
-assert.equal(conf.get('a.nested.path'), 'to nowhere');
-assert.equal(conf.get('a.nested.object'), 'is fun');
+		assert(fs.existsSync(localConfigPath));
+	})
+	it("should return true when no local config exists", () => {
+		mock({
+			// Nothing!
+		});
+		conf.load();
 
-conf.setGlobal('a.nested.object', 'is changed globally');
-assert.equal(conf.get('a.nested.object'), 'is fun');
+		assert(!fs.existsSync(localConfigPath));
 
-conf.set('a.nested.object', 'is changed locally');
-assert.equal(conf.get('a.nested.object'), 'is changed locally');
+		assert(conf.initLocalConfig());
 
-// Should return false, since a local config already exists.
-assert(!conf.initLocalConfig());
-
-// Should return true now, since no local config already exists:
-assert(conf.initLocalConfig());
-assert(fs.existsSync(configPath));
-
-conf.deleteLocalConfig();
-assert(!fs.existsSync(configPath));
-
-// End of it("should work good") function
+		assert(fs.existsSync(localConfigPath));
+	})
 });
